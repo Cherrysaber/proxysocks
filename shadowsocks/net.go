@@ -18,7 +18,7 @@ func (c *Conn) Write(p []byte) (int, error) {
 	return c.cryptor.EncTo(c.Conn, p)
 }
 
-func Dial(network, address, hostPort, method, password string) (net.Conn, error) {
+func Dial(network, address, hostPort, method, password string) (*Conn, error) {
 	cryptor, err := NewCipher(method, password)
 	if err != nil {
 		return nil, err
@@ -35,7 +35,7 @@ func Dial(network, address, hostPort, method, password string) (net.Conn, error)
 	return ss, nil
 }
 
-func DialTimeout(network, address, hostPort, method, password string, timeout time.Duration) (net.Conn, error) {
+func DialTimeout(network, address, hostPort, method, password string, timeout time.Duration) (*Conn, error) {
 	cryptor, err := NewCipher(method, password)
 	if err != nil {
 		return nil, err
@@ -63,14 +63,15 @@ func (l *Listener) Accept() (conn net.Conn, hostPort string, err error) {
 	if err != nil {
 		return
 	}
-	cryptor, err := NewCipher(l.method, l.password)
+	var cryptor Cryptor
+	cryptor, err = NewCipher(l.method, l.password)
 	if err != nil {
 		conn.Close()
 		return
 	}
-	ss := &Conn{Conn: conn, cryptor: cryptor}
-	if hostPort, err = ServerHandshakeTimeout(ss, l.timeout); err != nil {
-		ss.Close()
+	conn = &Conn{Conn: conn, cryptor: cryptor}
+	if hostPort, err = ServerHandshakeTimeout(conn, l.timeout); err != nil {
+		conn.Close()
 	}
 	return
 }

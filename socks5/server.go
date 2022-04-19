@@ -12,27 +12,28 @@ import (
 
 // ServerHandshake server执行socks5握手, 握手成功返回client请求的hostPort
 // ServerHandshake无论握手成功与否, 都不会发送Response数据, 需要用户自动构造Response回复
-func ServerHandshake(conn net.Conn, auths []AuthMethod) (string, error) {
+func ServerHandshake(conn net.Conn, auths []AuthMethod) (hostPort string, err error) {
 	return serverHandshake(conn, auths)
 }
 
 // ServerHandshakeTimeout server设置超时时间执行socks5握手, 握手成功返回client请求的hostPort
 // ServerHandshakeTimeout无论握手成功与否, 都不会发送Response数据, 需要用户自动构造Response回复
-func ServerHandshakeTimeout(conn net.Conn, auths []AuthMethod, timeout time.Duration) (string, error) {
+func ServerHandshakeTimeout(conn net.Conn, auths []AuthMethod, timeout time.Duration) (hostPort string, err error) {
 	if timeout > 0 {
 		// set timeout
-		if err := conn.SetDeadline(time.Now().Add(timeout)); err != nil {
-			return "", &s5Error{
+		if err = conn.SetDeadline(time.Now().Add(timeout)); err != nil {
+			err = &s5Error{
 				prefix: "serverHandshake",
 				op:     "SetDeadline",
 				err:    err,
 			}
+			return
 		}
 
 		// reset timeout
 		defer func() {
-			if err := conn.SetDeadline(time.Time{}); err != nil {
-				panic(err)
+			if e := conn.SetDeadline(time.Time{}); e != nil {
+				panic(e)
 			}
 		}()
 	}

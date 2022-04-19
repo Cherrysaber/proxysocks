@@ -20,6 +20,10 @@ func sha224(password string) []byte {
 	return []byte(hash)
 }
 
+func Hash(password string) []byte {
+	return sha224(password)
+}
+
 type tjError struct {
 	prefix string
 	op     string

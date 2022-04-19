@@ -25,17 +25,29 @@ func (a *AuthPassword) Auth(password string) bool {
 	return ok
 }
 
-func NewAuthPasswordSlice(slice []string) *AuthPassword {
+func NewAuthPasswordSlice(slice []string, toHash bool) *AuthPassword {
 	m := make(map[string]int, len(slice))
 	for _, v := range slice {
-		m[v] = 1
+		if toHash {
+			m[string(sha224(v))] = 1
+		} else {
+			m[v] = 1
+		}
+
 	}
 	return &AuthPassword{
 		Map: m,
 	}
 }
 
-func NewAuthPasswordMap(m map[string]int) *AuthPassword {
+func NewAuthPasswordMap(m map[string]int, toHash bool) *AuthPassword {
+	if toHash {
+		Map := make(map[string]int, len(m))
+		for k, v := range m {
+			Map[string(sha224(k))] = v
+		}
+		m = Map
+	}
 	return &AuthPassword{
 		Map: m,
 	}

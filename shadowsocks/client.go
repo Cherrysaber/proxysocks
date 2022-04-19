@@ -7,11 +7,11 @@ import (
 	"time"
 )
 
-func ClientHandshake(conn *Conn, hostPort string) error {
+func ClientHandshake(conn net.Conn, hostPort string) error {
 	return clientHandshake(conn, hostPort)
 }
 
-func ClientHandshakeTimeout(conn *Conn, hostPort string, timeout time.Duration) error {
+func ClientHandshakeTimeout(conn net.Conn, hostPort string, timeout time.Duration) error {
 	if timeout > 0 {
 		// set timeout
 		if err := conn.SetDeadline(time.Now().Add(timeout)); err != nil {

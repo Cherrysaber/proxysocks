@@ -9,25 +9,26 @@ import (
 	"time"
 )
 
-func ServerHandshake(conn *Conn) (hostPort string, err error) {
+func ServerHandshake(conn net.Conn) (hostPort string, err error) {
 	return serverHandshake(conn)
 }
 
-func ServerHandshakeTimeout(conn *Conn, timeout time.Duration) (string, error) {
+func ServerHandshakeTimeout(conn net.Conn, timeout time.Duration) (hostPort string, err error) {
 	if timeout > 0 {
 		// set timeout
-		if err := conn.SetDeadline(time.Now().Add(timeout)); err != nil {
-			return "", &ssError{
+		if err = conn.SetDeadline(time.Now().Add(timeout)); err != nil {
+			err = &ssError{
 				prefix: "serverHandshake",
 				op:     "SetDeadline",
 				err:    err,
 			}
+			return
 		}
 
 		// reset
 		defer func() {
-			if err := conn.SetDeadline(time.Time{}); err != nil {
-				panic(err)
+			if e := conn.SetDeadline(time.Time{}); e != nil {
+				panic(e)
 			}
 		}()
 	}

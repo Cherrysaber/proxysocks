@@ -13,7 +13,7 @@ func TestAuthFailure(t *testing.T) {
 }
 
 func TestAuthPassword(t *testing.T) {
-	a := NewAuthPasswordSlice([]string{"test", "test2"})
+	a := NewAuthPasswordSlice([]string{"test", "test2"}, false)
 	if a.Method() != "password" {
 		t.Error("password != ", a.Method())
 	}
@@ -27,7 +27,7 @@ func TestAuthPassword(t *testing.T) {
 		"test":  1,
 		"test2": 2,
 	}
-	a = NewAuthPasswordMap(m)
+	a = NewAuthPasswordMap(m, false)
 	if !a.Auth("test") {
 		t.Error("AuthPassword does not match test")
 	}
