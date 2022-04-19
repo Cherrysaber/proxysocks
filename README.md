@@ -51,6 +51,7 @@ func client(){
 ```
 
 ### trojan
+```go
 import "github.com/Cherrysaber/proxysocks/trojan"
 ...
 func server(){
@@ -79,7 +80,7 @@ func client(){
     conn.Write([]byte("GET / HTTP/1.1\r\nHost: www.google.com\r\n\r\n"))
     ...
 }
-
+```
 
 - 所有包实现和**net**库一致接口Dial,Listen...
 - 高聚合低耦合,基本只使用官方标准库,其余逻辑都内部自实现
