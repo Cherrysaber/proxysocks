@@ -12,6 +12,7 @@ func TestDial(t *testing.T) {
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
 	go server(t, wg, 0)
+	time.Sleep(100 * time.Millisecond)
 	conn, err := Dial("tcp", "127.0.0.1:23333", "127.0.0.1:6666",
 		[]AuthMethod{NewAuthNone()})
 	if err != nil {
@@ -25,6 +26,7 @@ func TestDialTimeout(t *testing.T) {
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
 	go server(t, wg, 100*time.Millisecond)
+	time.Sleep(100 * time.Millisecond)
 	_, err := DialTimeout("tcp", "127.0.0.1:23333", "127.0.0.1:6666",
 		[]AuthMethod{NewAuthNone()}, 50*time.Millisecond)
 	if err == nil {
@@ -92,7 +94,7 @@ func TestListenTimeout(t *testing.T) {
 
 	err = err.(wrapError).Unwrap()
 	if err, ok := err.(*net.OpError); !ok {
-		t.Fatal("should be timeout")
+		t.Fatal("should be timeout not ", err)
 	} else if !err.Timeout() {
 		t.Fatal("should be timeout not ", err)
 	}

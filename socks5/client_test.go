@@ -12,6 +12,7 @@ func TestClientHandshake(t *testing.T) {
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
 	go server(t, wg, 0)
+	time.Sleep(100 * time.Millisecond)
 	conn, err := net.Dial("tcp", "127.0.0.1:23333")
 	if err != nil {
 		t.Fatal(err)
@@ -33,6 +34,7 @@ func testClientHandshakeTimeout(t *testing.T) {
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
 	go server(t, wg, 0)
+	time.Sleep(100 * time.Millisecond)
 	conn, err := net.Dial("tcp", "127.0.0.1:23333")
 	if err != nil {
 		t.Fatal(err)
@@ -50,6 +52,7 @@ func testClientHandshakeTimeoutError(t *testing.T) {
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
 	go server(t, wg, 100*time.Millisecond)
+	time.Sleep(100 * time.Millisecond)
 	conn, err := net.Dial("tcp", "127.0.0.1:23333")
 	if err != nil {
 		t.Fatal(err)
