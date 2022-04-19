@@ -1,4 +1,4 @@
-module shadowsocks
+module github.com/Cherrysaber/proxysocks/shadowsocks
 
 go 1.17
 
