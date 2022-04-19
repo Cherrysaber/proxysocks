@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func client(t *testing.T, wg *sync.WaitGroup, timeout time.Duration) {
+func client(t *testing.T, wg *sync.WaitGroup, sleepTime time.Duration) {
 	defer wg.Done()
 	conn, err := net.Dial("tcp", "127.0.0.1:23333")
 	if err != nil {
@@ -47,8 +47,8 @@ func client(t *testing.T, wg *sync.WaitGroup, timeout time.Duration) {
 		return
 	}
 
-	if timeout > 0 {
-		time.Sleep(timeout)
+	if sleepTime > 0 {
+		time.Sleep(sleepTime)
 		return
 	}
 
@@ -128,7 +128,7 @@ func testServerHandshakeTimeout(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer conn.Close()
-	hostPort, err := ServerHandshakeTimeout(conn, []AuthMethod{NewAuthNone()}, 10*time.Second)
+	hostPort, err := ServerHandshakeTimeout(conn, []AuthMethod{NewAuthNone()}, 50*time.Millisecond)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -153,17 +153,23 @@ func testServerHandshakeTimeoutError(t *testing.T) {
 	defer ln.Close()
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
-	go client(t, wg, 5*time.Second)
+	go client(t, wg, 100*time.Millisecond)
 	conn, err := ln.Accept()
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer conn.Close()
-	_, err = ServerHandshakeTimeout(conn, []AuthMethod{NewAuthNone()}, 2*time.Second)
+	_, err = ServerHandshakeTimeout(conn, []AuthMethod{NewAuthNone()}, 50*time.Millisecond)
 	if err == nil {
 		t.Fatal("should be timeout")
 	}
+
+	type wrapError interface {
+		Error() string
+		Unwrap() error
+	}
 	err = err.(wrapError).Unwrap()
+
 	if err, ok := err.(*net.OpError); !ok {
 		t.Fatal("should be timeout")
 	} else if !err.Timeout() {

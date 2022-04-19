@@ -24,12 +24,18 @@ func TestDial(t *testing.T) {
 func TestDialTimeout(t *testing.T) {
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
-	go server(t, wg, 5*time.Second)
+	go server(t, wg, 100*time.Millisecond)
 	_, err := DialTimeout("tcp", "127.0.0.1:23333", "127.0.0.1:6666",
-		[]AuthMethod{NewAuthNone()}, 2*time.Second)
+		[]AuthMethod{NewAuthNone()}, 50*time.Millisecond)
 	if err == nil {
 		t.Fatal("should be timeout")
 	}
+
+	type wrapError interface {
+		Error() string
+		Unwrap() error
+	}
+
 	err = err.(wrapError).Unwrap()
 	if err, ok := err.(*net.OpError); !ok {
 		t.Fatal("should be timeout")
@@ -68,16 +74,22 @@ func TestListenTimeout(t *testing.T) {
 	serverLock.Lock()
 	defer serverLock.Unlock()
 	ln, err := ListenTimeout("tcp", "127.0.0.1:23333",
-		[]AuthMethod{NewAuthNone()}, 2*time.Second)
+		[]AuthMethod{NewAuthNone()}, 50*time.Millisecond)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer ln.Close()
-	go client(t, wg, 5*time.Second)
+	go client(t, wg, 100*time.Millisecond)
 	_, _, err = ln.Accept()
 	if err == nil {
 		t.Fatal("should be timeout")
 	}
+
+	type wrapError interface {
+		Error() string
+		Unwrap() error
+	}
+
 	err = err.(wrapError).Unwrap()
 	if err, ok := err.(*net.OpError); !ok {
 		t.Fatal("should be timeout")
@@ -138,7 +150,7 @@ func TestAcceptResponse(t *testing.T) {
 
 	go func() {
 		defer wg.Done()
-		time.Sleep(1 * time.Second)
+		time.Sleep(100 * time.Millisecond)
 		conn, err := Dial("tcp", "127.0.0.1:23333", "127.0.0.1:6666", nil)
 		if err == nil {
 			conn.Close()

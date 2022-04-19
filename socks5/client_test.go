@@ -39,31 +39,30 @@ func testClientHandshakeTimeout(t *testing.T) {
 	}
 	defer conn.Close()
 	err = ClientHandshakeTimeout(conn, "127.0.0.1:6666", CmdConnect,
-		[]AuthMethod{NewAuthNone()}, 10*time.Second)
+		[]AuthMethod{NewAuthNone()}, 50*time.Millisecond)
 	if err != nil {
 		t.Fatal(err)
 	}
 	wg.Wait()
 }
 
-type wrapError interface {
-	Error() string
-	Unwrap() error
-}
-
 func testClientHandshakeTimeoutError(t *testing.T) {
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
-	go server(t, wg, 5*time.Second)
+	go server(t, wg, 100*time.Millisecond)
 	conn, err := net.Dial("tcp", "127.0.0.1:23333")
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer conn.Close()
 	err = ClientHandshakeTimeout(conn, "127.0.0.1:6666",
-		CmdConnect, []AuthMethod{NewAuthNone()}, 2*time.Second)
+		CmdConnect, []AuthMethod{NewAuthNone()}, 50*time.Millisecond)
 	if err == nil {
 		t.Fatal("should be timeout")
+	}
+	type wrapError interface {
+		Error() string
+		Unwrap() error
 	}
 	err = err.(wrapError).Unwrap()
 	if err, ok := err.(*net.OpError); !ok {
