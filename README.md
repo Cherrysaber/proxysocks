@@ -5,8 +5,8 @@ Go Proxy Protocol Library
 - 高聚合低耦合,基本只使用官方标准库,其余逻辑都内部自实现
 
 ## ToDo
-- [ ] Socks5
-- [ ] Shadosocks
+- [x] Socks5
+- [x] Shadosocks
 - [ ] Trojan
 - [ ] Vmess
 - [ ] Websocket 
