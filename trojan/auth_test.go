@@ -1,6 +1,9 @@
 package trojan
 
-import "testing"
+import (
+	"bytes"
+	"testing"
+)
 
 func TestAuthFailure(t *testing.T) {
 	a := AuthFailure("test")
@@ -13,25 +16,34 @@ func TestAuthFailure(t *testing.T) {
 }
 
 func TestAuthPassword(t *testing.T) {
-	a := NewAuthPasswordSlice([]string{"test", "test2"}, false)
+	rw := bytes.NewBuffer(nil)
+	a := NewAuthPasswordSlice([]string{"test", "test2"}, true)
 	if a.Method() != "password" {
 		t.Error("password != ", a.Method())
 	}
-	if !a.Auth("test") {
+	rw.Reset()
+	rw.Write(Hash("test"))
+	if err := a.Auth(rw); err != nil {
 		t.Error("AuthPassword does not match test")
 	}
-	if a.Auth("test3") {
+	rw.Reset()
+	rw.Write(Hash("test3"))
+	if err := a.Auth(rw); err == nil {
 		t.Error("AuthPassword should not match test3")
 	}
 	m := map[string]int{
 		"test":  1,
 		"test2": 2,
 	}
-	a = NewAuthPasswordMap(m, false)
-	if !a.Auth("test") {
+	a = NewAuthPasswordMap(m, true)
+	rw.Reset()
+	rw.Write(Hash("test"))
+	if err := a.Auth(rw); err != nil {
 		t.Error("AuthPassword does not match test")
 	}
-	if a.Auth("test3") {
+	rw.Reset()
+	rw.Write(Hash("test3"))
+	if err := a.Auth(rw); err == nil {
 		t.Error("AuthPassword should not match test3")
 	}
 }

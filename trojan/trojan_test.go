@@ -7,7 +7,7 @@ import (
 
 func TestHandshake(t *testing.T) {
 	hash := sha224("password")
-	auth := NewAuthPasswordSlice([]string{string(hash)})
+	auth := NewAuthPasswordSlice([]string{string(hash)}, false)
 	rw := bytes.NewBuffer(nil)
 	err := clientHandshake(rw, "127.0.0.1:6666", "password")
 	if err != nil {
@@ -27,7 +27,7 @@ func TestHandshake(t *testing.T) {
 
 func TestHandshakeError(t *testing.T) {
 	hash := sha224("password")
-	auth := NewAuthPasswordSlice([]string{string(hash)})
+	auth := NewAuthPasswordSlice([]string{string(hash)}, true)
 	rw := bytes.NewBuffer(nil)
 	err := clientHandshake(rw, "127.0.0.1:6666", "password2")
 	if err != nil {

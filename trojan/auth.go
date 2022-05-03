@@ -1,9 +1,11 @@
 package trojan
 
+import "io"
+
 // AuthMethod trojan 认证方式接口
 type AuthMethod interface {
 	Method() string
-	Auth(password string) bool
+	Auth(r io.Reader) error
 }
 
 type AuthFailure string
@@ -20,9 +22,18 @@ func (a *AuthPassword) Method() string {
 	return "password"
 }
 
-func (a *AuthPassword) Auth(password string) bool {
-	_, ok := a.Map[password]
-	return ok
+func (a *AuthPassword) Auth(r io.Reader) error {
+	buf := make([]byte, 56, 56)
+	if n, err := io.ReadFull(r, buf); err != nil {
+		if n != 0 {
+			err = AuthFailure(buf[:n])
+		}
+		return err
+	}
+	if _, ok := a.Map[string(buf)]; !ok {
+		return AuthFailure(buf)
+	}
+	return nil
 }
 
 func NewAuthPasswordSlice(slice []string, toHash bool) *AuthPassword {

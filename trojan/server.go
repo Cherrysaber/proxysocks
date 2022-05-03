@@ -33,22 +33,16 @@ func ServerHandshakeTimeout(conn net.Conn, auth AuthMethod, timeout time.Duratio
 // 只有在56位hash没有读满或者验证失败时返回AuthFailure,
 // []byte(err)得到原始Bytes流,可以进行重定向
 func serverHandshake(rw io.ReadWriter, auth AuthMethod) (network string, hostPort string, err error) {
-	buf := make([]byte, 56, 56)
-	if n, err := io.ReadFull(rw, buf); err != nil {
-		if n != 0 {
-			err = AuthFailure(buf[:n])
-		}
-		return "", "", err
-	}
 
 	// 验证
-	if !auth.Auth(string(buf)) {
-		err = AuthFailure(buf)
+	if err = auth.Auth(rw); err != nil {
 		return
 	}
 
+	buf := make([]byte, 2)
+
 	// discard crlf
-	if _, err = io.ReadFull(rw, buf[:2]); err != nil {
+	if _, err = io.ReadFull(rw, buf); err != nil {
 		err = &tjError{
 			prefix: "serverHandshake",
 			op:     "Discard crlf",
@@ -60,7 +54,7 @@ func serverHandshake(rw io.ReadWriter, auth AuthMethod) (network string, hostPor
 	// parse request
 
 	// read cmd addrType
-	if _, err = io.ReadFull(rw, buf[:2]); err != nil {
+	if _, err = io.ReadFull(rw, buf); err != nil {
 		err = &tjError{
 			prefix: "serverHandshake",
 			op:     "Read Cmd and AddrType",
