@@ -452,8 +452,7 @@ func (res *Response) FlushTo(w io.Writer) error {
 func ParseHostPort(addrType byte, addr []byte, port []byte) (hostPort string, err error) {
 	p := binary.BigEndian.Uint16(port)
 	switch addrType {
-	case AddrTypeIPv4:
-	case AddrTypeIPv6:
+	case AddrTypeIPv4, AddrTypeIPv6:
 		hostPort = net.IP(addr).String() + ":" + strconv.Itoa(int(p))
 	case AddrTypeDomain:
 		hostPort = string(addr[1:]) + ":" + strconv.Itoa(int(p))
